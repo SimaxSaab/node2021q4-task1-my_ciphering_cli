@@ -1,76 +1,34 @@
 'use strict';
 
-let EngAlfUp = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-let EngAlfLower = ['a','b','c','d','e','f','g','h','i','j','k','l','m','m','o','p','q','r','s','t','u','v','w','x','y','z'];
-
-let EngAlfUpEncrypt = Array(26); 
-let EngAlfLowerEncrypt = Array(26);
-
-let pos;
-  
-function initEncrypt(step) {
-  EngAlfUpEncrypt = CezarEncrypt(step, EngAlfUp);
-  EngAlfLowerEncrypt = CezarEncrypt(step, EngAlfLower);
-}
-
-function CezarEncrypt(step, arr) {
-  let CopyAlf = arr.slice();
-  let i = 0;
-  
-  while ((i + step) < (CopyAlf.length)) {
-    let buff = CopyAlf[i];
-    CopyAlf[i] = CopyAlf[i + step];
-    CopyAlf[i + step] = buff;
-    i++;     
+function encrypt(str, offset) {
+  let out = '';
+  for(let i = 0; i < str.length; i++) {
+    let code = str.charCodeAt(i);
+    let codeNew = code + offset;
+    if(offset > 0) {
+      if(code >= 97) {
+        if(codeNew > 122) {
+          codeNew = 97 + codeNew - 123;
+        }
+      } else if(code >= 65) {
+        if(codeNew > 90) {
+          codeNew = 65 + codeNew - 91;
+        }
+      }
+    } else if(offset < 0) {
+      if(code <= 90) {
+        if(codeNew < 65) {
+          codeNew = 91 + codeNew - 65;
+        }
+      } else if(code <= 122) {
+        if(codeNew < 97) {
+          codeNew = 123 + codeNew - 97;
+        }
+      }
+    }
+    out += String.fromCharCode(codeNew);
   }
-  return CopyAlf;
-}
-
-function contains(symb, arr) {
-  let letter = symb;
-  pos = 0;
-  for (let i = 0; i < arr.length; i++) {
-    if (letter === arr[i]) {
-      pos = i;
-      return true;
-      break;
-    }
-  }
-}
-
-function encrypt(text, step) {
-  initEncrypt(step);
-  let result = '';
-  for (let i = 0; i <= text.length; i++) {
-    let symbol = text[i];
-    if (contains(symbol, EngAlfUp)) {
-        symbol = EngAlfUpEncrypt[pos];
-        result += symbol;
-    }
-    if ((contains(symbol, EngAlfLower))) {
-        symbol = EngAlfLowerEncrypt[pos];
-        result += symbol;
-    }
-  }
-  return result;
-}
-
-function decrypt(text, step) {
-  initEncrypt(step);
-  let result = '';
-  for (let i = 0; i <= text.length; i++) {
-    let symbol = text[i];
-    if (contains(symbol, EngAlfUpEncrypt)) {
-        symbol = EngAlfUp[pos];
-        result += symbol;
-    }
-    if ((contains(symbol, EngAlfLowerEncrypt))) {
-        symbol = EngAlfLower[pos];
-        result += symbol;
-    }
-  }
-  return result;
+  return out;
 }
 
 module.exports.encrypt = encrypt;
-module.exports.decrypt = decrypt;

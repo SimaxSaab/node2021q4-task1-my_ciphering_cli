@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const  Stream  = require('stream');
-const { encrypt, decrypt } = require("./encDec");
+const { encrypt } = require("./encDec");
 
 let paramTwo, arrArgumentsForPipe = [], cipher = [], mainStream, readableStream, writeableStream;
 
@@ -25,13 +25,13 @@ class ToCeasarStream extends Stream.Transform {
         this.push(encrypt(chunk, 1));
         break;
       case 'C0':
-        this.push(decrypt(chunk, 1));
+        this.push(encrypt(chunk, -1));
         break;
       case 'R1':
         this.push(encrypt(chunk, 8));
         break;
       case 'R0':
-        this.push(decrypt(chunk, 8));
+        this.push(encrypt(chunk, -8));
         break;
       case 'A':
         this.push(enAtbash(chunk));
@@ -118,15 +118,20 @@ let promiseInputCLI = new Promise((resolve, reject) => {
   resolve(arrArgumentsForPipe);
 });
 
+
+
+
+
+
 promiseInputCLI.then((arrArgumentsForPipe) => {
-  if(arrArgumentsForPipe[0] !== 'undefined') {
-    readableStream = fs.createReadStream(
-      arrArgumentsForPipe[0],
-      'utf8'
-    );
-  } else {
-    readableStream = process.stdin;
-  }
+  // if(arrArgumentsForPipe[0] !== 'undefined') {
+  //   readableStream = fs.createReadStream(
+  //     arrArgumentsForPipe[0],
+  //     'utf8'
+  //   );
+  // } else {
+  //   readableStream = process.stdin;
+  // }
   if(arrArgumentsForPipe[1] !== undefined) {
     writeableStream = fs.createWriteStream(arrArgumentsForPipe[1]);
   } else {
@@ -139,6 +144,7 @@ promiseInputCLI.then((arrArgumentsForPipe) => {
       await mainPipe(cipherItem, i);
       i++;
     }
+
     mainStream.pipe(writeableStream);
   }
   processCipher();
@@ -152,26 +158,3 @@ function mainPipe(cipherItem, i) {
   }
 }
 
-function enAtbash(message) {    
-  
-  let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let tebahpla = "ZYXWVUTSRQPONMLKJIHGFEDCBA";
-  let alphabet1 = "abcdefghijklmnopqrstuvwxyz";
-  let tebahpla1 = "zyxwvutsrqponmlkjihgfedcba";
-  let decoded_string = "";
-
-  for(let i = 0; i < message.length; i++) {
-    let coded_letra = message.charAt(i);
-    if (coded_letra === coded_letra.toUpperCase()) {
-      let letraPosMayus = alphabet.indexOf(coded_letra);
-      let tebLetraPosMayus = tebahpla.charAt(letraPosMayus);
-      decoded_string = decoded_string + tebLetraPosMayus;
-    }
-    else {
-      let letraPosMinus1 = alphabet1.indexOf(coded_letra);
-      let tebLetraPosMinus1 = tebahpla1.charAt(letraPosMinus1);
-      decoded_string = decoded_string + tebLetraPosMinus1;
-    }
-  }
-  return decoded_string;
-}
