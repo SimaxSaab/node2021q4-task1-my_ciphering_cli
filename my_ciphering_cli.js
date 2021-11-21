@@ -3,6 +3,7 @@
 const fs = require('fs');
 const  Stream  = require('stream');
 const { encrypt } = require("./encDec");
+const { encAtbash } = require("./encAtbash");
 
 let paramTwo, arrArgumentsForPipe = [], cipher = [], mainStream, readableStream, writeableStream;
 
@@ -34,12 +35,11 @@ class ToCeasarStream extends Stream.Transform {
         this.push(encrypt(chunk, -8));
         break;
       case 'A':
-        this.push(enAtbash(chunk));
+        this.push(encAtbash(chunk));
     }
     callback();
   }
 }
-
 
 console.clear();
 let promiseInputCLI = new Promise((resolve, reject) => {
@@ -118,20 +118,15 @@ let promiseInputCLI = new Promise((resolve, reject) => {
   resolve(arrArgumentsForPipe);
 });
 
-
-
-
-
-
 promiseInputCLI.then((arrArgumentsForPipe) => {
-  // if(arrArgumentsForPipe[0] !== 'undefined') {
-  //   readableStream = fs.createReadStream(
-  //     arrArgumentsForPipe[0],
-  //     'utf8'
-  //   );
-  // } else {
-  //   readableStream = process.stdin;
-  // }
+  if(arrArgumentsForPipe[0] !== 'undefined') {
+    readableStream = fs.createReadStream(
+      arrArgumentsForPipe[0],
+      'utf8'
+    );
+  } else {
+    readableStream = process.stdin;
+  }
   if(arrArgumentsForPipe[1] !== undefined) {
     writeableStream = fs.createWriteStream(arrArgumentsForPipe[1]);
   } else {
@@ -157,4 +152,3 @@ function mainPipe(cipherItem, i) {
     mainStream = mainStream.pipe(new ToCeasarStream({},cipherItem));
   }
 }
-
